@@ -1,0 +1,1749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vocabulary Practice Tool</title>
+  <style>
+    :root {
+      --bg: #f0f7f4;
+      --surface: #ffffff;
+      --primary: #15803d;
+      --primary-hover: #166534;
+      --primary-light: #dcfce7;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border: #d1fae5;
+      --card-border: #cbd5e1;
+      --success-bg: #dcfce7;
+      --success-border: #22c55e;
+      --success-text: #15803d;
+      --error-bg: #fee2e2;
+      --error-border: #ef4444;
+      --error-text: #b91c1c;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 16px;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 740px;
+      background: var(--surface);
+      border-radius: 18px;
+      box-shadow: 0 12px 30px rgba(21, 128, 61, 0.08);
+      padding: 24px;
+      border: 1px solid var(--border);
+    }
+
+    header {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .title-group h1 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .title-group p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .selectors-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    @media (min-width: 600px) {
+      .selectors-grid {
+        grid-template-columns: 1fr 1fr 1fr;
+      }
+    }
+
+    .selector-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .selector-group label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .set-selector-box {
+      display: flex;
+      align-items: center;
+      background: #f8fafc;
+      padding: 8px 12px;
+      border-radius: 9px;
+      border: 1px solid #cbd5e1;
+      width: 100%;
+    }
+
+    .set-selector-box select {
+      border: none;
+      background: transparent;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--primary);
+      cursor: pointer;
+      outline: none;
+      width: 100%;
+    }
+
+    .set-selector-box select:disabled {
+      color: var(--text-muted);
+      cursor: not-allowed;
+    }
+
+    .sub-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .dir-switch {
+      display: inline-flex;
+      background: #f8fafc;
+      padding: 4px;
+      border-radius: 9px;
+      border: 1px solid #cbd5e1;
+      gap: 4px;
+    }
+
+    .dir-btn {
+      border: none;
+      background: transparent;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .dir-btn.active {
+      background: var(--primary);
+      color: #ffffff;
+    }
+
+    .stats-badge {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: #f1f5f9;
+      padding: 6px 12px;
+      border-radius: 8px;
+    }
+
+    /* Flashcard Styles */
+    .flashcard-scene {
+      width: 100%;
+      height: 270px;
+      perspective: 1000px;
+      margin-bottom: 16px;
+      cursor: pointer;
+    }
+
+    .flashcard {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+      transform-style: preserve-3d;
+    }
+
+    .flashcard.is-flipped {
+      transform: rotateY(180deg);
+    }
+
+    .card-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 14px;
+      border: 2px solid var(--card-border);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      text-align: center;
+      background: #f8fafc;
+    }
+
+    .card-face.back {
+      transform: rotateY(180deg);
+      background: #ffffff;
+      border-color: var(--primary);
+    }
+
+    .pos-tag {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--primary);
+      font-weight: 700;
+      background: var(--primary-light);
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 12px;
+    }
+
+    .word-title {
+      font-size: 1.7rem;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.25;
+      word-break: break-word;
+    }
+
+    .word-title.long-text {
+      font-size: 1.15rem;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+
+    .flip-hint {
+      position: absolute;
+      bottom: 12px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .back-main-text {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 10px;
+      line-height: 1.3;
+      word-break: break-word;
+    }
+
+    .back-main-text.long-text {
+      font-size: 1.05rem;
+      line-height: 1.4;
+    }
+
+    .example-text {
+      font-size: 0.85rem;
+      font-style: italic;
+      color: var(--text-muted);
+      line-height: 1.4;
+      background: #f1f5f9;
+      padding: 8px 12px;
+      border-radius: 8px;
+      margin-top: 4px;
+    }
+
+    /* Knowledge Action Buttons */
+    .knowledge-controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .btn-dont-know {
+      background: #fee2e2;
+      color: var(--error-text);
+      border: 1.5px solid #fca5a5;
+    }
+    .btn-dont-know:hover:not(:disabled) {
+      background: #fecaca;
+    }
+
+    .btn-know {
+      background: var(--success-bg);
+      color: var(--success-text);
+      border: 1.5px solid #86efac;
+    }
+    .btn-know:hover:not(:disabled) {
+      background: #bbf7d0;
+    }
+
+    /* Navigation Controls */
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      background: var(--surface);
+      color: var(--text-main);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn:hover:not(:disabled) {
+      background: #f1f5f9;
+    }
+
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--primary-hover);
+    }
+
+    .progress-indicator {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    /* Quiz & Gap Fill & Spelling Styles */
+    .quiz-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .target-box {
+      background: #f8fafc;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .target-box .label {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .target-box .target-word {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.35;
+      word-break: break-word;
+    }
+
+    .options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .option-btn {
+      width: 100%;
+      text-align: left;
+      padding: 14px 16px;
+      border-radius: 10px;
+      border: 1.5px solid #cbd5e1;
+      background: var(--surface);
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text-main);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    .options-grid .option-btn {
+      text-align: center;
+      font-weight: 600;
+      padding: 14px 12px;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      border-color: var(--primary);
+      background: #f8fafc;
+    }
+
+    .option-btn.correct {
+      background: var(--success-bg);
+      border-color: var(--success-border);
+      color: var(--success-text);
+      font-weight: 700;
+    }
+
+    .option-btn.incorrect {
+      background: var(--error-bg);
+      border-color: var(--error-border);
+      color: var(--error-text);
+    }
+
+    .gap-box {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .gap-input {
+      width: 100%;
+      padding: 12px 14px;
+      font-size: 1rem;
+      border: 2px solid #cbd5e1;
+      border-radius: 10px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .gap-input:focus {
+      border-color: var(--primary);
+    }
+
+    .gap-feedback {
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 10px 14px;
+      border-radius: 8px;
+      word-break: break-word;
+    }
+
+    .gap-feedback.correct {
+      background: var(--success-bg);
+      color: var(--success-text);
+    }
+
+    .gap-feedback.incorrect {
+      background: var(--error-bg);
+      color: var(--error-text);
+    }
+
+    .quiz-summary {
+      text-align: center;
+      padding: 24px 12px;
+    }
+
+    .quiz-summary h2 {
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+    }
+
+    .quiz-summary p {
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      font-size: 1rem;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (min-width: 600px) {
+      body {
+        padding: 24px;
+      }
+      .app-container {
+        padding: 32px;
+      }
+      .options-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .flashcard-scene {
+        height: 290px;
+      }
+      .word-title {
+        font-size: 1.9rem;
+      }
+      .back-main-text {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <header>
+      <div class="title-group">
+        <h1 id="set-main-title">Vocabulary Practice Tool</h1>
+        <p id="set-main-desc">Select a general topic, then a set or mix</p>
+      </div>
+
+      <div class="selectors-grid">
+        <!-- 1. CATEGORY SELECTOR -->
+        <div class="selector-group">
+          <label for="category-selector">General Topic:</label>
+          <div class="set-selector-box">
+            <select id="category-selector" onchange="onCategoryChange(this.value)">
+              <option value="" disabled selected>-- Select topic --</option>
+              <option value="ecology">Environment & Nature</option>
+              <option value="tech">Technology & Society</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 2. SET OR MIX SELECTOR -->
+        <div class="selector-group">
+          <label for="set-selector">Set / Mix 12:</label>
+          <div class="set-selector-box">
+            <select id="set-selector" onchange="loadSelectedSetOrMix(this.value)" disabled>
+              <option value="" disabled selected>-- Select topic first --</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 3. MODE SELECTOR -->
+        <div class="selector-group">
+          <label for="mode-selector">Practice Mode:</label>
+          <div class="set-selector-box">
+            <select id="mode-selector" onchange="switchMode(this.value)" disabled>
+              <option value="" disabled selected>-- Select set first --</option>
+              <option value="trans-cards">Translation (Cards)</option>
+              <option value="mc">Multiple Choice (Quiz)</option>
+              <option value="spelling">Spelling (Practice)</option>
+              <option value="def-cards">Definitions (Cards)</option>
+              <option value="mc2">MC 2 (Definitions Quiz)</option>
+              <option value="spelling2">Spelling 2 (Definitions Spelling)</option>
+              <option value="context-fill">Context Fill (MC Sentences)</option>
+              <option value="gap">Context Fill 2 (Typing Sentences)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- 1. TRANSLATION FLASHCARDS VIEW -->
+    <section id="trans-cards-view">
+      <div class="sub-controls">
+        <div class="dir-switch">
+          <button id="dir-en-ua" class="dir-btn active" onclick="setTransDir('en-ua')">EN → UA</button>
+          <button id="dir-ua-en" class="dir-btn" onclick="setTransDir('ua-en')">UA → EN</button>
+        </div>
+        <div id="trans-stats" class="stats-badge">Remaining: 0 | Known: 0</div>
+      </div>
+
+      <div class="flashcard-scene" onclick="flipTransCard()">
+        <div id="trans-flashcard" class="flashcard">
+          <div class="card-face front">
+            <span id="trans-card-pos" class="pos-tag">-</span>
+            <div id="trans-front-text" class="word-title">Please select a topic and set above</div>
+            <span class="flip-hint">Click to flip card</span>
+          </div>
+          <div class="card-face back">
+            <span id="trans-back-pos" class="pos-tag">-</span>
+            <div id="trans-back-text" class="back-main-text">-</div>
+            <div id="trans-card-ex" class="example-text">-</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="trans-knowledge-controls" class="knowledge-controls">
+        <button class="btn btn-dont-know" onclick="markTransCard(false)">❌ I don't know</button>
+        <button class="btn btn-know" onclick="markTransCard(true)">✅ I know</button>
+      </div>
+
+      <div id="trans-nav-controls" class="controls">
+        <button id="trans-prev-btn" class="btn" onclick="prevTransCard()">← Prev</button>
+        <span id="trans-card-counter" class="progress-indicator">Card 0 of 0</span>
+        <button id="trans-next-btn" class="btn btn-primary" onclick="nextTransCard()">Next →</button>
+      </div>
+    </section>
+
+    <!-- 2. MULTIPLE CHOICE VIEW -->
+    <section id="mc-view" class="hidden">
+      <div class="sub-controls">
+        <div class="dir-switch">
+          <button id="dir-mc-uk-en" class="dir-btn active" onclick="setMcDir('uk-en')">UA → EN</button>
+          <button id="dir-mc-en-uk" class="dir-btn" onclick="setMcDir('en-uk')">EN → UA</button>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <button class="btn" style="padding: 6px 12px; font-size: 0.82rem;" onclick="restartMc()" title="Shuffle questions">🔀 Shuffle</button>
+        </div>
+      </div>
+
+      <div id="mc-active">
+        <div class="quiz-header">
+          <span id="mc-counter">Question 0 of 0</span>
+          <span id="mc-score">Score: 0</span>
+        </div>
+
+        <div class="target-box">
+          <div id="mc-label" class="label">Choose the correct translation:</div>
+          <div id="mc-target-word" class="target-word">Please select a topic and set above</div>
+        </div>
+
+        <div id="mc-options-list" class="options-grid"></div>
+
+        <div class="controls" style="justify-content: flex-end;">
+          <button id="mc-next-btn" class="btn btn-primary hidden" onclick="nextMcQuestion()">Next →</button>
+        </div>
+      </div>
+
+      <div id="mc-results" class="quiz-summary hidden">
+        <h2>Quiz Complete!</h2>
+        <p id="mc-final-text">Your score: 0.</p>
+        <button class="btn btn-primary" onclick="restartMc()">Try Again</button>
+      </div>
+    </section>
+
+    <!-- 3. SPELLING VIEW -->
+    <section id="spelling-view" class="hidden">
+      <div class="sub-controls">
+        <div id="spelling-stats" class="stats-badge">Remaining: 0 | Mastered: 0</div>
+        <button class="btn" style="padding: 6px 12px; font-size: 0.82rem;" onclick="restartSpelling()" title="Shuffle words">🔀 Shuffle</button>
+      </div>
+
+      <div id="spelling-active">
+        <div class="quiz-header">
+          <span id="spelling-counter">Word 0 of 0</span>
+          <span id="spelling-score">Score: 0</span>
+        </div>
+
+        <div class="target-box">
+          <div class="label">Type the English translation:</div>
+          <div id="spelling-ua-word" class="target-word">Please select a topic and set above</div>
+        </div>
+
+        <div class="gap-box">
+          <input type="text" id="spelling-input" class="gap-input" placeholder="Select a word set first..." disabled autocomplete="off" onkeydown="if(event.key==='Enter') checkSpellingAnswer()" />
+          <div id="spelling-feedback" class="gap-feedback hidden"></div>
+        </div>
+
+        <div class="controls">
+          <div style="display: flex; gap: 8px;">
+            <button id="spelling-hint-btn" class="btn" onclick="showSpellingHint()">Hint</button>
+            <button id="spelling-skip-btn" class="btn" onclick="skipSpellingQuestion()">⏭ Skip</button>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button id="spelling-check-btn" class="btn btn-primary" onclick="checkSpellingAnswer()">Check</button>
+            <button id="spelling-next-btn" class="btn btn-primary hidden" onclick="nextSpellingQuestion()">Next →</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="spelling-results" class="quiz-summary hidden">
+        <h2>Spelling Practice Complete!</h2>
+        <p id="spelling-final-text">Your score: 0.</p>
+        <button class="btn btn-primary" onclick="restartSpelling()">Practice Again</button>
+      </div>
+    </section>
+
+    <!-- 4. DEFINITION FLASHCARDS VIEW -->
+    <section id="def-cards-view" class="hidden">
+      <div class="sub-controls">
+        <div class="dir-switch">
+          <button id="dir-word-def" class="dir-btn active" onclick="setDefDir('word-def')">Word → Definition</button>
+          <button id="dir-def-word" class="dir-btn" onclick="setDefDir('def-word')">Definition → Word</button>
+        </div>
+        <div id="def-stats" class="stats-badge">Remaining: 0 | Known: 0</div>
+      </div>
+
+      <div class="flashcard-scene" onclick="flipDefCard()">
+        <div id="def-flashcard" class="flashcard">
+          <div class="card-face front">
+            <span id="def-card-pos" class="pos-tag">-</span>
+            <div id="def-front-text" class="word-title">Please select a topic and set above</div>
+            <span class="flip-hint">Click to flip card</span>
+          </div>
+          <div class="card-face back">
+            <span id="def-back-pos" class="pos-tag">-</span>
+            <div id="def-back-text" class="back-main-text long-text">-</div>
+            <div id="def-card-ex" class="example-text">-</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="def-knowledge-controls" class="knowledge-controls">
+        <button class="btn btn-dont-know" onclick="markDefCard(false)">❌ I don't know</button>
+        <button class="btn btn-know" onclick="markDefCard(true)">✅ I know</button>
+      </div>
+
+      <div id="def-nav-controls" class="controls">
+        <button id="def-prev-btn" class="btn" onclick="prevDefCard()">← Prev</button>
+        <span id="def-card-counter" class="progress-indicator">Card 0 of 0</span>
+        <button id="def-next-btn" class="btn btn-primary" onclick="nextDefCard()">Next →</button>
+      </div>
+    </section>
+
+    <!-- 5. MULTIPLE CHOICE 2 VIEW -->
+    <section id="mc2-view" class="hidden">
+      <div class="sub-controls">
+        <div class="dir-switch">
+          <button id="dir-mc2-word-def" class="dir-btn active" onclick="setMc2Dir('word-def')">Word → Definition</button>
+          <button id="dir-mc2-def-word" class="dir-btn" onclick="setMc2Dir('def-word')">Definition → Word</button>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <button class="btn" style="padding: 6px 12px; font-size: 0.82rem;" onclick="restartMc2()" title="Shuffle questions">🔀 Shuffle</button>
+        </div>
+      </div>
+
+      <div id="mc2-active">
+        <div class="quiz-header">
+          <span id="mc2-counter">Question 0 of 0</span>
+          <span id="mc2-score">Score: 0</span>
+        </div>
+
+        <div class="target-box">
+          <div id="mc2-label" class="label">Choose the correct definition for:</div>
+          <div id="mc2-target-word" class="target-word">Please select a word set</div>
+        </div>
+
+        <div id="mc2-options-list" class="options-list"></div>
+
+        <div class="controls" style="justify-content: flex-end;">
+          <button id="mc2-next-btn" class="btn btn-primary hidden" onclick="nextMc2Question()">Next →</button>
+        </div>
+      </div>
+
+      <div id="mc2-results" class="quiz-summary hidden">
+        <h2>Quiz Complete!</h2>
+        <p id="mc2-final-text">You scored 0.</p>
+        <button class="btn btn-primary" onclick="restartMc2()">Try Again</button>
+      </div>
+    </section>
+
+    <!-- 6. SPELLING 2 VIEW -->
+    <section id="spelling2-view" class="hidden">
+      <div class="sub-controls">
+        <div id="spelling2-stats" class="stats-badge">Remaining: 0 | Mastered: 0</div>
+        <button class="btn" style="padding: 6px 12px; font-size: 0.82rem;" onclick="restartSpelling2()" title="Shuffle definitions">🔀 Shuffle</button>
+      </div>
+
+      <div id="spelling2-active">
+        <div class="quiz-header">
+          <span id="spelling2-counter">Definition 0 of 0</span>
+          <span id="spelling2-score">Score: 0</span>
+        </div>
+
+        <div class="target-box">
+          <div class="label">Type the word for definition:</div>
+          <div id="spelling2-def-text" class="target-word" style="font-size: 1.15rem; font-weight: 600; line-height: 1.45;">Please select a word set</div>
+        </div>
+
+        <div class="gap-box">
+          <input type="text" id="spelling2-input" class="gap-input" placeholder="Select a word set first..." disabled autocomplete="off" onkeydown="if(event.key==='Enter') checkSpelling2Answer()" />
+          <div id="spelling2-feedback" class="gap-feedback hidden"></div>
+        </div>
+
+        <div class="controls">
+          <div style="display: flex; gap: 8px;">
+            <button id="spelling2-hint-btn" class="btn" onclick="showSpelling2Hint()">Hint</button>
+            <button id="spelling2-skip-btn" class="btn" onclick="skipSpelling2Question()">⏭ Skip</button>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button id="spelling2-check-btn" class="btn btn-primary" onclick="checkSpelling2Answer()">Check</button>
+            <button id="spelling2-next-btn" class="btn btn-primary hidden" onclick="nextSpelling2Question()">Next →</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="spelling2-results" class="quiz-summary hidden">
+        <h2>Practice Complete!</h2>
+        <p id="spelling2-final-text">You solved 0.</p>
+        <button class="btn btn-primary" onclick="restartSpelling2()">Practice Again</button>
+      </div>
+    </section>
+
+    <!-- 7. CONTEXT FILL VIEW -->
+    <section id="context-fill-view" class="hidden">
+      <div class="sub-controls">
+        <div class="quiz-header" style="margin-bottom: 0;">
+          <span id="cf-counter">Question 0 of 0</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span id="cf-score" class="stats-badge" style="background: var(--primary-light); color: var(--primary);">Score: 0</span>
+          <button class="btn" style="padding: 6px 12px; font-size: 0.82rem;" onclick="restartContextFill()" title="Shuffle questions">🔀 Shuffle</button>
+        </div>
+      </div>
+
+      <div id="cf-active">
+        <div class="target-box">
+          <div class="label">Choose the correct missing word or phrase:</div>
+          <div id="cf-prompt" class="target-word" style="font-size: 1.15rem; font-weight: 600; line-height: 1.45;">Please select a word set</div>
+        </div>
+
+        <div id="cf-options-list" class="options-grid"></div>
+
+        <div class="controls" style="justify-content: flex-end;">
+          <button id="cf-next-btn" class="btn btn-primary hidden" onclick="nextContextFillQuestion()">Next →</button>
+        </div>
+      </div>
+
+      <div id="cf-results" class="quiz-summary hidden">
+        <h2>Practice Complete!</h2>
+        <p id="cf-final-text">You scored 0.</p>
+        <button class="btn btn-primary" onclick="restartContextFill()">Try Again</button>
+      </div>
+    </section>
+
+    <!-- 8. CONTEXT FILL 2 VIEW -->
+    <section id="gap-view" class="hidden">
+      <div class="sub-controls">
+        <div id="gap-stats" class="stats-badge">Remaining: 0 | Mastered: 0</div>
+        <button class="btn" style="padding: 6px 12px; font-size: 0.82rem;" onclick="restartGap()" title="Shuffle sentences">🔀 Shuffle</button>
+      </div>
+
+      <div id="gap-active">
+        <div class="quiz-header">
+          <span id="gap-counter">Sentence 0 of 0</span>
+          <span id="gap-score">Score: 0</span>
+        </div>
+        <div class="target-box">
+          <div class="label">Complete the sentence:</div>
+          <div id="gap-prompt" class="target-word" style="font-size: 1.15rem; font-weight: 600; line-height: 1.45;">Please select a word set</div>
+        </div>
+        <div class="gap-box">
+          <input type="text" id="gap-input" class="gap-input" placeholder="Select a word set first..." disabled autocomplete="off" onkeydown="if(event.key==='Enter') checkGapAnswer()" />
+          <div id="gap-feedback" class="gap-feedback hidden"></div>
+        </div>
+        <div class="controls">
+          <div style="display: flex; gap: 8px;">
+            <button id="gap-hint-btn" class="btn" onclick="showGapHint()">Hint (UA translation)</button>
+            <button id="gap-skip-btn" class="btn" onclick="skipGapQuestion()">⏭ Skip</button>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button id="gap-check-btn" class="btn btn-primary" onclick="checkGapAnswer()">Check</button>
+            <button id="gap-next-btn" class="btn btn-primary hidden" onclick="nextGap()">Next →</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="gap-results" class="quiz-summary hidden">
+        <h2>Practice Complete!</h2>
+        <p id="gap-final-text">You completed 0 sentences.</p>
+        <button class="btn btn-primary" onclick="restartGap()">Practice Again</button>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // Каталог із вкладеними папками у директорії sets/
+    const categoriesCatalog = {
+      ecology: {
+        name: "Environment & Nature",
+        sets: [
+          { file: "ecology/environment.json", title: "Environment & Ecology" },
+          { file: "ecology/climate.json", title: "Climate Change" }
+        ]
+      },
+      tech: {
+        name: "Technology & Society",
+        sets: [
+          { file: "tech/technology.json", title: "Technology & AI" },
+          { file: "tech/digital.json", title: "Digital Communication" }
+        ]
+      }
+    };
+
+    let vocabData = [];
+    let currentMode = "trans-cards";
+    let selectedCategoryKey = "";
+    let selectedSetIdentifier = "";
+
+    // Translation Deck State
+    let transQueue = [];
+    let transIndex = 0;
+    let transFlipped = false;
+    let transDir = "en-ua";
+    let transKnownCount = 0;
+
+    // Multiple Choice State
+    let mcDir = "uk-en";
+    let mcQuestions = [];
+    let mcIndex = 0;
+    let mcScore = 0;
+    let mcAnswered = false;
+
+    // Spelling Queue State
+    let spellingQueue = [];
+    let spellingTotalOriginal = 0;
+    let spellingScore = 0;
+    let spellingAnswered = false;
+
+    // Definition Deck State
+    let defQueue = [];
+    let defIndex = 0;
+    let defFlipped = false;
+    let defDir = "word-def";
+    let defKnownCount = 0;
+
+    // Multiple Choice 2 State
+    let mc2Dir = "word-def";
+    let mc2Questions = [];
+    let mc2Index = 0;
+    let mc2Score = 0;
+    let mc2Answered = false;
+
+    // Spelling 2 Queue State
+    let spelling2Queue = [];
+    let spelling2TotalOriginal = 0;
+    let spelling2Score = 0;
+    let spelling2Answered = false;
+
+    // Context Fill (MC) State
+    let cfQuestions = [];
+    let cfIndex = 0;
+    let cfScore = 0;
+    let cfAnswered = false;
+
+    // Context Gap-Fill 2 State
+    let gapQueue = [];
+    let gapTotalOriginal = 0;
+    let gapScore = 0;
+    let gapAnswered = false;
+
+    function shuffle(array) {
+      const copy = [...array];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function onCategoryChange(catKey) {
+      selectedCategoryKey = catKey;
+      const setSelector = document.getElementById("set-selector");
+      const modeSelector = document.getElementById("mode-selector");
+
+      modeSelector.disabled = true;
+      modeSelector.value = "";
+
+      setSelector.innerHTML = "";
+      setSelector.disabled = false;
+
+      const catObj = categoriesCatalog[catKey];
+      if (!catObj) return;
+
+      const defaultOpt = document.createElement("option");
+      defaultOpt.value = "";
+      defaultOpt.disabled = true;
+      defaultOpt.selected = true;
+      defaultOpt.textContent = "-- Select set or mix --";
+      setSelector.appendChild(defaultOpt);
+
+      catObj.sets.forEach(s => {
+        const opt = document.createElement("option");
+        opt.value = s.file;
+        opt.textContent = s.title;
+        setSelector.appendChild(opt);
+      });
+
+      const mixOpt = document.createElement("option");
+      mixOpt.value = "mix12";
+      mixOpt.textContent = "🎲 Random Mix (12 words from topic)";
+      setSelector.appendChild(mixOpt);
+    }
+
+    async function loadSelectedSetOrMix(identifier) {
+      if (!identifier || !selectedCategoryKey) return;
+      selectedSetIdentifier = identifier;
+      const catObj = categoriesCatalog[selectedCategoryKey];
+
+      try {
+        if (identifier === "mix12") {
+          let combinedData = [];
+          const promises = catObj.sets.map(s => fetch(`sets/${s.file}`).then(res => res.json()));
+          const results = await Promise.all(promises);
+
+          results.forEach(json => {
+            if (json && json.data) {
+              combinedData = combinedData.concat(json.data);
+            }
+          });
+
+          if (combinedData.length === 0) throw new Error("Empty data in topic sets");
+
+          const shuffled = shuffle(combinedData);
+          vocabData = shuffled.slice(0, 12);
+
+          document.getElementById("set-main-title").textContent = `${catObj.name} (Mix 12 words)`;
+          document.getElementById("set-main-desc").textContent = `Random sample from ${catObj.sets.length} topic sets`;
+
+        } else {
+          const response = await fetch(`sets/${identifier}`);
+          if (!response.ok) throw new Error("Failed to load set file");
+          const json = await response.json();
+
+          document.getElementById("set-main-title").textContent = json.title;
+          document.getElementById("set-main-desc").textContent = json.description || `${json.data.length} items`;
+          
+          vocabData = json.data;
+        }
+
+        const modeSelector = document.getElementById("mode-selector");
+        modeSelector.disabled = false;
+        
+        if (!modeSelector.value || modeSelector.value === "") {
+          modeSelector.value = "trans-cards";
+        }
+        
+        switchMode(modeSelector.value, true);
+
+      } catch (error) {
+        console.error(error);
+        alert("Loading error! Please check folders and files in the sets/ directory.");
+      }
+    }
+
+    function switchMode(mode, forceReset = false) {
+      if (!mode) return;
+      currentMode = mode;
+      
+      const modeSelector = document.getElementById("mode-selector");
+      if (modeSelector && modeSelector.value !== mode) {
+        modeSelector.value = mode;
+      }
+
+      const modes = ["trans-cards", "mc", "spelling", "def-cards", "mc2", "spelling2", "context-fill", "gap"];
+      modes.forEach((m) => {
+        document.getElementById(`${m}-view`).classList.toggle("hidden", mode !== m);
+      });
+
+      if (vocabData.length === 0) return;
+
+      if (mode === "trans-cards") {
+        if (forceReset || (transQueue.length === 0 && transKnownCount === 0)) initTransDeck();
+        else renderTransCard();
+      } else if (mode === "mc") {
+        restartMc();
+      } else if (mode === "spelling") {
+        restartSpelling();
+      } else if (mode === "def-cards") {
+        if (forceReset || (defQueue.length === 0 && defKnownCount === 0)) initDefDeck();
+        else renderDefCard();
+      } else if (mode === "mc2") {
+        restartMc2();
+      } else if (mode === "spelling2") {
+        restartSpelling2();
+      } else if (mode === "context-fill") {
+        restartContextFill();
+      } else if (mode === "gap") {
+        restartGap();
+      }
+    }
+
+    // --- 1. TRANSLATION FLASHCARDS ---
+    function initTransDeck() {
+      transQueue = shuffle([...vocabData]);
+      transIndex = 0;
+      transKnownCount = 0;
+      renderTransCard();
+    }
+
+    function setTransDir(dir) {
+      transDir = dir;
+      document.getElementById("dir-en-ua").classList.toggle("active", dir === "en-ua");
+      document.getElementById("dir-ua-en").classList.toggle("active", dir === "ua-en");
+      initTransDeck();
+    }
+
+    function renderTransCard() {
+      const sceneEl = document.querySelector("#trans-cards-view .flashcard-scene");
+      const controlsEl = document.getElementById("trans-knowledge-controls");
+      const navControlsEl = document.getElementById("trans-nav-controls");
+
+      if (vocabData.length === 0) return;
+
+      if (transQueue.length === 0) {
+        sceneEl.innerHTML = `
+          <div class="card-face" style="background: #f0fdf4; border-color: #22c55e;">
+            <div style="font-size: 2.2rem; margin-bottom: 8px;">🎉</div>
+            <h2 style="color: var(--success-text); margin-bottom: 8px;">Great job!</h2>
+            <p style="color: var(--text-muted); font-size: 0.95rem;">You have successfully mastered all words in this deck.</p>
+            <button class="btn btn-primary" style="margin-top: 16px;" onclick="initTransDeck()">Study Again</button>
+          </div>
+        `;
+        controlsEl.classList.add("hidden");
+        navControlsEl.classList.add("hidden");
+        document.getElementById("trans-stats").textContent = `Remaining: 0 | Known: ${transKnownCount}`;
+        return;
+      }
+
+      if (!document.getElementById("trans-flashcard")) {
+        sceneEl.innerHTML = `
+          <div id="trans-flashcard" class="flashcard">
+            <div class="card-face front">
+              <span id="trans-card-pos" class="pos-tag"></span>
+              <div id="trans-front-text" class="word-title"></div>
+              <span class="flip-hint">Click to flip card</span>
+            </div>
+            <div class="card-face back">
+              <span id="trans-back-pos" class="pos-tag"></span>
+              <div id="trans-back-text" class="back-main-text"></div>
+              <div id="trans-card-ex" class="example-text"></div>
+            </div>
+          </div>
+        `;
+        controlsEl.classList.remove("hidden");
+        navControlsEl.classList.remove("hidden");
+      }
+
+      if (transIndex >= transQueue.length) transIndex = 0;
+
+      const item = transQueue[transIndex];
+      transFlipped = false;
+      document.getElementById("trans-flashcard").classList.remove("is-flipped");
+
+      setTimeout(() => {
+        document.getElementById("trans-card-pos").textContent = item.pos;
+        document.getElementById("trans-back-pos").textContent = item.pos;
+        document.getElementById("trans-card-ex").textContent = `"${item.example}"`;
+
+        const frontEl = document.getElementById("trans-front-text");
+        const backEl = document.getElementById("trans-back-text");
+
+        if (transDir === "en-ua") {
+          frontEl.textContent = item.word;
+          backEl.textContent = item.ua;
+        } else {
+          frontEl.textContent = item.ua;
+          backEl.textContent = item.word;
+        }
+      }, 100);
+
+      document.getElementById("trans-card-counter").textContent = `Card ${transIndex + 1} of ${transQueue.length}`;
+      document.getElementById("trans-stats").textContent = `Remaining: ${transQueue.length} | Known: ${transKnownCount}`;
+      document.getElementById("trans-prev-btn").disabled = transIndex === 0;
+      document.getElementById("trans-next-btn").disabled = transIndex === transQueue.length - 1;
+    }
+
+    function flipTransCard() {
+      if (transQueue.length === 0) return;
+      transFlipped = !transFlipped;
+      document.getElementById("trans-flashcard").classList.toggle("is-flipped", transFlipped);
+    }
+
+    function prevTransCard() {
+      if (transIndex > 0) { transIndex--; renderTransCard(); }
+    }
+
+    function nextTransCard() {
+      if (transIndex < transQueue.length - 1) { transIndex++; renderTransCard(); }
+    }
+
+    function markTransCard(known) {
+      if (transQueue.length === 0) return;
+      const currentItem = transQueue.splice(transIndex, 1)[0];
+      if (known) transKnownCount++;
+      else transQueue.push(currentItem);
+      if (transIndex >= transQueue.length) transIndex = 0;
+      renderTransCard();
+    }
+
+    // --- 2. MULTIPLE CHOICE ---
+    function setMcDir(dir) {
+      mcDir = dir;
+      document.getElementById("dir-mc-uk-en").classList.toggle("active", dir === "uk-en");
+      document.getElementById("dir-mc-en-uk").classList.toggle("active", dir === "en-uk");
+      restartMc();
+    }
+
+    function buildMcQuestions() {
+      return shuffle(vocabData).map((item) => {
+        if (mcDir === "uk-en") {
+          const distractors = shuffle(vocabData.filter((v) => v.word !== item.word)).slice(0, 3).map((d) => d.word);
+          const options = shuffle([item.word, ...distractors]);
+          return { prompt: item.ua, correctAnswer: item.word, options };
+        } else {
+          const distractors = shuffle(vocabData.filter((v) => v.word !== item.word)).slice(0, 3).map((d) => d.ua);
+          const options = shuffle([item.ua, ...distractors]);
+          return { prompt: item.word, correctAnswer: item.ua, options };
+        }
+      });
+    }
+
+    function renderMcQuestion() {
+      if (vocabData.length === 0) return;
+      mcAnswered = false;
+      const q = mcQuestions[mcIndex];
+      document.getElementById("mc-counter").textContent = `Question ${mcIndex + 1} of ${mcQuestions.length}`;
+      document.getElementById("mc-score").textContent = `Score: ${mcScore}`;
+      document.getElementById("mc-target-word").textContent = q.prompt;
+      document.getElementById("mc-label").textContent = mcDir === "uk-en" ? "Choose the English translation:" : "Choose the Ukrainian translation:";
+      document.getElementById("mc-next-btn").classList.add("hidden");
+
+      const optionsContainer = document.getElementById("mc-options-list");
+      optionsContainer.innerHTML = "";
+      q.options.forEach((optText) => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.textContent = optText;
+        btn.onclick = () => selectMcAnswer(optText, btn);
+        optionsContainer.appendChild(btn);
+      });
+    }
+
+    function selectMcAnswer(selectedText, btnElement) {
+      if (mcAnswered) return;
+      mcAnswered = true;
+      const q = mcQuestions[mcIndex];
+      document.querySelectorAll("#mc-options-list .option-btn").forEach((btn) => {
+        btn.disabled = true;
+        if (btn.textContent === q.correctAnswer) btn.classList.add("correct");
+      });
+      if (selectedText === q.correctAnswer) {
+        mcScore++;
+        document.getElementById("mc-score").textContent = `Score: ${mcScore}`;
+      } else {
+        btnElement.classList.add("incorrect");
+      }
+      const nextBtn = document.getElementById("mc-next-btn");
+      nextBtn.textContent = mcIndex === mcQuestions.length - 1 ? "See Results" : "Next →";
+      nextBtn.classList.remove("hidden");
+    }
+
+    function nextMcQuestion() {
+      if (mcIndex < mcQuestions.length - 1) { mcIndex++; renderMcQuestion(); }
+      else {
+        document.getElementById("mc-active").classList.add("hidden");
+        document.getElementById("mc-results").classList.remove("hidden");
+        document.getElementById("mc-final-text").textContent = `Your score: ${mcScore} out of ${mcQuestions.length}.`;
+      }
+    }
+
+    function restartMc() {
+      if (vocabData.length === 0) return;
+      mcQuestions = buildMcQuestions();
+      mcIndex = 0; mcScore = 0;
+      document.getElementById("mc-results").classList.add("hidden");
+      document.getElementById("mc-active").classList.remove("hidden");
+      renderMcQuestion();
+    }
+
+    // --- 3. SPELLING ---
+    function restartSpelling() {
+      if (vocabData.length === 0) return;
+      spellingQueue = shuffle([...vocabData]);
+      spellingTotalOriginal = spellingQueue.length;
+      spellingScore = 0;
+      document.getElementById("spelling-results").classList.add("hidden");
+      document.getElementById("spelling-active").classList.remove("hidden");
+      renderSpellingQuestion();
+    }
+
+    function renderSpellingQuestion() {
+      if (vocabData.length === 0) return;
+      if (spellingQueue.length === 0) {
+        document.getElementById("spelling-active").classList.add("hidden");
+        document.getElementById("spelling-results").classList.remove("hidden");
+        document.getElementById("spelling-final-text").textContent = `Your score: ${spellingScore} out of ${spellingTotalOriginal}.`;
+        return;
+      }
+      spellingAnswered = false;
+      const rem = spellingQueue.length;
+      const comp = spellingTotalOriginal - rem;
+      document.getElementById("spelling-counter").textContent = `Word ${comp + 1} of ${spellingTotalOriginal}`;
+      document.getElementById("spelling-score").textContent = `Score: ${spellingScore}`;
+      document.getElementById("spelling-stats").textContent = `Remaining: ${rem} | Mastered: ${comp}`;
+      document.getElementById("spelling-ua-word").textContent = spellingQueue[0].ua;
+
+      const input = document.getElementById("spelling-input");
+      input.value = ""; input.disabled = false; input.focus();
+      const feedback = document.getElementById("spelling-feedback");
+      feedback.className = "gap-feedback hidden"; feedback.textContent = "";
+
+      document.getElementById("spelling-check-btn").classList.remove("hidden");
+      document.getElementById("spelling-skip-btn").classList.remove("hidden");
+      document.getElementById("spelling-next-btn").classList.add("hidden");
+    }
+
+    function showSpellingHint() {
+      if (vocabData.length === 0) return;
+      const item = spellingQueue[0];
+      const feedback = document.getElementById("spelling-feedback");
+      feedback.className = "gap-feedback";
+      feedback.style.background = "#f1f5f9"; feedback.style.color = "#334155";
+      feedback.textContent = `Hint: ${item.word.length} letters, starts with "${item.word[0]}"`;
+    }
+
+    function skipSpellingQuestion() {
+      if (spellingAnswered) return;
+      spellingQueue.push(spellingQueue.shift());
+      renderSpellingQuestion();
+    }
+
+    function checkSpellingAnswer() {
+      if (spellingAnswered) { spellingQueue.shift(); renderSpellingQuestion(); return; }
+      if (vocabData.length === 0) return;
+      const item = spellingQueue[0];
+      const input = document.getElementById("spelling-input");
+      const userVal = input.value.trim().toLowerCase();
+      if (!userVal) return;
+      spellingAnswered = true; input.disabled = true;
+
+      const cleanTarget = item.word.toLowerCase();
+      const isCorrect = userVal === cleanTarget;
+      const feedback = document.getElementById("spelling-feedback");
+      feedback.style = "";
+      if (isCorrect) {
+        spellingScore++;
+        document.getElementById("spelling-score").textContent = `Score: ${spellingScore}`;
+        feedback.className = "gap-feedback correct";
+        feedback.textContent = `Correct! Word: "${item.word}"`;
+      } else {
+        feedback.className = "gap-feedback incorrect";
+        feedback.textContent = `Incorrect. Correct word: "${item.word}"`;
+      }
+      document.getElementById("spelling-check-btn").classList.add("hidden");
+      document.getElementById("spelling-skip-btn").classList.add("hidden");
+      const nextBtn = document.getElementById("spelling-next-btn");
+      nextBtn.textContent = spellingQueue.length === 1 ? "See Results" : "Next →";
+      nextBtn.classList.remove("hidden");
+    }
+
+    function nextSpellingQuestion() { checkSpellingAnswer(); }
+
+    // --- 4. DEFINITION FLASHCARDS ---
+    function initDefDeck() {
+      defQueue = shuffle([...vocabData]);
+      defIndex = 0; defKnownCount = 0;
+      renderDefCard();
+    }
+
+    function setDefDir(dir) {
+      defDir = dir;
+      document.getElementById("dir-word-def").classList.toggle("active", dir === "word-def");
+      document.getElementById("dir-def-word").classList.toggle("active", dir === "def-word");
+      initDefDeck();
+    }
+
+    function renderDefCard() {
+      const sceneEl = document.querySelector("#def-cards-view .flashcard-scene");
+      const controlsEl = document.getElementById("def-knowledge-controls");
+      const navControlsEl = document.getElementById("def-nav-controls");
+
+      if (vocabData.length === 0) return;
+
+      if (defQueue.length === 0) {
+        sceneEl.innerHTML = `
+          <div class="card-face" style="background: #f0fdf4; border-color: #22c55e;">
+            <div style="font-size: 2.2rem; margin-bottom: 8px;">🎉</div>
+            <h2 style="color: var(--success-text); margin-bottom: 8px;">Great job!</h2>
+            <p style="color: var(--text-muted); font-size: 0.95rem;">You have successfully mastered all definitions.</p>
+            <button class="btn btn-primary" style="margin-top: 16px;" onclick="initDefDeck()">Study Again</button>
+          </div>
+        `;
+        controlsEl.classList.add("hidden");
+        navControlsEl.classList.add("hidden");
+        document.getElementById("def-stats").textContent = `Remaining: 0 | Known: ${defKnownCount}`;
+        return;
+      }
+
+      if (!document.getElementById("def-flashcard")) {
+        sceneEl.innerHTML = `
+          <div id="def-flashcard" class="flashcard">
+            <div class="card-face front"><span id="def-card-pos" class="pos-tag"></span><div id="def-front-text" class="word-title"></div><span class="flip-hint">Click to flip card</span></div>
+            <div class="card-face back"><span id="def-back-pos" class="pos-tag"></span><div id="def-back-text" class="back-main-text long-text"></div><div id="def-card-ex" class="example-text"></div></div>
+          </div>
+        `;
+        controlsEl.classList.remove("hidden");
+        navControlsEl.classList.remove("hidden");
+      }
+
+      if (defIndex >= defQueue.length) defIndex = 0;
+      const item = defQueue[defIndex];
+      defFlipped = false;
+      document.getElementById("def-flashcard").classList.remove("is-flipped");
+
+      setTimeout(() => {
+        document.getElementById("def-card-pos").textContent = item.pos;
+        document.getElementById("def-back-pos").textContent = item.pos;
+        document.getElementById("def-card-ex").textContent = `"${item.example}"`;
+        const frontEl = document.getElementById("def-front-text");
+        const backEl = document.getElementById("def-back-text");
+
+        if (defDir === "word-def") {
+          frontEl.textContent = item.word; frontEl.classList.remove("long-text");
+          backEl.textContent = item.definition; backEl.classList.add("long-text");
+        } else {
+          frontEl.textContent = item.definition; frontEl.classList.add("long-text");
+          backEl.textContent = item.word; backEl.classList.remove("long-text");
+        }
+      }, 100);
+
+      document.getElementById("def-card-counter").textContent = `Card ${defIndex + 1} of ${defQueue.length}`;
+      document.getElementById("def-stats").textContent = `Remaining: ${defQueue.length} | Known: ${defKnownCount}`;
+      document.getElementById("def-prev-btn").disabled = defIndex === 0;
+      document.getElementById("def-next-btn").disabled = defIndex === defQueue.length - 1;
+    }
+
+    function flipDefCard() {
+      if (defQueue.length === 0) return;
+      defFlipped = !defFlipped;
+      document.getElementById("def-flashcard").classList.toggle("is-flipped", defFlipped);
+    }
+    function prevDefCard() { if (defIndex > 0) { defIndex--; renderDefCard(); } }
+    function nextDefCard() { if (defIndex < defQueue.length - 1) { defIndex++; renderDefCard(); } }
+    function markDefCard(known) {
+      if (defQueue.length === 0) return;
+      const item = defQueue.splice(defIndex, 1)[0];
+      if (known) defKnownCount++; else defQueue.push(item);
+      if (defIndex >= defQueue.length) defIndex = 0;
+      renderDefCard();
+    }
+
+    // --- 5. MULTIPLE CHOICE 2 ---
+    function setMc2Dir(dir) {
+      mc2Dir = dir;
+      document.getElementById("dir-mc2-word-def").classList.toggle("active", dir === "word-def");
+      document.getElementById("dir-mc2-def-word").classList.toggle("active", dir === "def-word");
+      restartMc2();
+    }
+
+    function buildMc2Questions() {
+      return shuffle(vocabData).map((item) => {
+        if (mc2Dir === "word-def") {
+          const distractors = shuffle(vocabData.filter((v) => v.word !== item.word)).slice(0, 3).map((d) => d.definition);
+          return { prompt: `${item.word} (${item.pos})`, correctAnswer: item.definition, options: shuffle([item.definition, ...distractors]) };
+        } else {
+          const distractors = shuffle(vocabData.filter((v) => v.word !== item.word)).slice(0, 3).map((d) => d.word);
+          return { prompt: item.definition, correctAnswer: item.word, options: shuffle([item.word, ...distractors]) };
+        }
+      });
+    }
+
+    function renderMc2Question() {
+      if (vocabData.length === 0) return;
+      mc2Answered = false;
+      const q = mc2Questions[mc2Index];
+      document.getElementById("mc2-counter").textContent = `Question ${mc2Index + 1} of ${mc2Questions.length}`;
+      document.getElementById("mc2-score").textContent = `Score: ${mc2Score}`;
+      document.getElementById("mc2-target-word").textContent = q.prompt;
+      document.getElementById("mc2-label").textContent = mc2Dir === "word-def" ? "Choose the correct definition for:" : "Choose the correct word for the definition:";
+      document.getElementById("mc2-next-btn").classList.add("hidden");
+
+      const optionsContainer = document.getElementById("mc2-options-list");
+      optionsContainer.innerHTML = "";
+      optionsContainer.className = mc2Dir === "def-word" ? "options-grid" : "options-list";
+
+      q.options.forEach((optText) => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.textContent = optText;
+        btn.onclick = () => selectMc2Answer(optText, btn);
+        optionsContainer.appendChild(btn);
+      });
+    }
+
+    function selectMc2Answer(selectedText, btnElement) {
+      if (mc2Answered) return;
+      mc2Answered = true;
+      const q = mc2Questions[mc2Index];
+      document.querySelectorAll("#mc2-options-list .option-btn").forEach((btn) => {
+        btn.disabled = true;
+        if (btn.textContent === q.correctAnswer) btn.classList.add("correct");
+      });
+      if (selectedText === q.correctAnswer) {
+        mc2Score++;
+        document.getElementById("mc2-score").textContent = `Score: ${mc2Score}`;
+      } else {
+        btnElement.classList.add("incorrect");
+      }
+      const nextBtn = document.getElementById("mc2-next-btn");
+      nextBtn.textContent = mc2Index === mc2Questions.length - 1 ? "See Results" : "Next →";
+      nextBtn.classList.remove("hidden");
+    }
+
+    function nextMc2Question() {
+      if (mc2Index < mc2Questions.length - 1) { mc2Index++; renderMc2Question(); }
+      else {
+        document.getElementById("mc2-active").classList.add("hidden");
+        document.getElementById("mc2-results").classList.remove("hidden");
+        document.getElementById("mc2-final-text").textContent = `You scored ${mc2Score} out of ${mc2Questions.length}.`;
+      }
+    }
+
+    function restartMc2() {
+      if (vocabData.length === 0) return;
+      mc2Questions = buildMc2Questions();
+      mc2Index = 0; mc2Score = 0;
+      document.getElementById("mc2-results").classList.add("hidden");
+      document.getElementById("mc2-active").classList.remove("hidden");
+      renderMc2Question();
+    }
+
+    // --- 6. SPELLING 2 ---
+    function restartSpelling2() {
+      if (vocabData.length === 0) return;
+      spelling2Queue = shuffle([...vocabData]);
+      spelling2TotalOriginal = spelling2Queue.length;
+      spelling2Score = 0;
+      document.getElementById("spelling2-results").classList.add("hidden");
+      document.getElementById("spelling2-active").classList.remove("hidden");
+      renderSpelling2Question();
+    }
+
+    function renderSpelling2Question() {
+      if (vocabData.length === 0) return;
+      if (spelling2Queue.length === 0) {
+        document.getElementById("spelling2-active").classList.add("hidden");
+        document.getElementById("spelling2-results").classList.remove("hidden");
+        document.getElementById("spelling2-final-text").textContent = `You solved ${spelling2Score} out of ${spelling2TotalOriginal} definitions.`;
+        return;
+      }
+      spelling2Answered = false;
+      const rem = spelling2Queue.length;
+      const comp = spelling2TotalOriginal - rem;
+      document.getElementById("spelling2-counter").textContent = `Definition ${comp + 1} of ${spelling2TotalOriginal}`;
+      document.getElementById("spelling2-score").textContent = `Score: ${spelling2Score}`;
+      document.getElementById("spelling2-stats").textContent = `Remaining: ${rem} | Mastered: ${comp}`;
+      document.getElementById("spelling2-def-text").textContent = spelling2Queue[0].definition;
+
+      const input = document.getElementById("spelling2-input");
+      input.value = ""; input.disabled = false; input.focus();
+      const feedback = document.getElementById("spelling2-feedback");
+      feedback.className = "gap-feedback hidden"; feedback.textContent = "";
+
+      document.getElementById("spelling2-check-btn").classList.remove("hidden");
+      document.getElementById("spelling2-skip-btn").classList.remove("hidden");
+      document.getElementById("spelling2-next-btn").classList.add("hidden");
+    }
+
+    function showSpelling2Hint() {
+      if (vocabData.length === 0) return;
+      const item = spelling2Queue[0];
+      const feedback = document.getElementById("spelling2-feedback");
+      feedback.className = "gap-feedback";
+      feedback.style.background = "#f1f5f9"; feedback.style.color = "#334155";
+      feedback.textContent = `Hint: ${item.word.length} letters, starts with "${item.word[0]}"`;
+    }
+
+    function skipSpelling2Question() {
+      if (spelling2Answered) return;
+      spelling2Queue.push(spelling2Queue.shift());
+      renderSpelling2Question();
+    }
+
+    function checkSpelling2Answer() {
+      if (spelling2Answered) { spelling2Queue.shift(); renderSpelling2Question(); return; }
+      if (vocabData.length === 0) return;
+      const item = spelling2Queue[0];
+      const input = document.getElementById("spelling2-input");
+      const userVal = input.value.trim().toLowerCase();
+      if (!userVal) return;
+      spelling2Answered = true; input.disabled = true;
+
+      const isCorrect = userVal === item.word.toLowerCase();
+      const feedback = document.getElementById("spelling2-feedback");
+      feedback.style = "";
+      if (isCorrect) {
+        spelling2Score++;
+        document.getElementById("spelling2-score").textContent = `Score: ${spelling2Score}`;
+        feedback.className = "gap-feedback correct";
+        feedback.textContent = `Correct! Word: "${item.word}"`;
+      } else {
+        feedback.className = "gap-feedback incorrect";
+        feedback.textContent = `Incorrect. Correct word: "${item.word}"`;
+      }
+      document.getElementById("spelling2-check-btn").classList.add("hidden");
+      document.getElementById("spelling2-skip-btn").classList.add("hidden");
+      const nextBtn = document.getElementById("spelling2-next-btn");
+      nextBtn.textContent = spelling2Queue.length === 1 ? "See Results" : "Next →";
+      nextBtn.classList.remove("hidden");
+    }
+
+    function nextSpelling2Question() { checkSpelling2Answer(); }
+
+    // --- 7. CONTEXT FILL ---
+    function buildContextFillQuestions() {
+      return shuffle(vocabData).map((item) => {
+        const distractors = shuffle(vocabData.filter((v) => v.word !== item.word)).slice(0, 3).map((d) => d.word);
+        return { prompt: item.gapSentence, correctAnswer: item.word, options: shuffle([item.word, ...distractors]) };
+      });
+    }
+
+    function restartContextFill() {
+      if (vocabData.length === 0) return;
+      cfQuestions = buildContextFillQuestions();
+      cfIndex = 0; cfScore = 0;
+      document.getElementById("cf-results").classList.add("hidden");
+      document.getElementById("cf-active").classList.remove("hidden");
+      renderContextFillQuestion();
+    }
+
+    function renderContextFillQuestion() {
+      if (vocabData.length === 0) return;
+      cfAnswered = false;
+      const q = cfQuestions[cfIndex];
+      document.getElementById("cf-counter").textContent = `Question ${cfIndex + 1} of ${cfQuestions.length}`;
+      document.getElementById("cf-score").textContent = `Score: ${cfScore}`;
+      document.getElementById("cf-prompt").textContent = q.prompt;
+      document.getElementById("cf-next-btn").classList.add("hidden");
+
+      const optionsContainer = document.getElementById("cf-options-list");
+      optionsContainer.innerHTML = "";
+      optionsContainer.className = "options-grid";
+      q.options.forEach((optText) => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.textContent = optText;
+        btn.style.textAlign = "center";
+        btn.onclick = () => selectContextFillAnswer(optText, btn);
+        optionsContainer.appendChild(btn);
+      });
+    }
+
+    function selectContextFillAnswer(selectedText, btnElement) {
+      if (cfAnswered) return;
+      cfAnswered = true;
+      const q = cfQuestions[cfIndex];
+      document.querySelectorAll("#cf-options-list .option-btn").forEach((btn) => {
+        btn.disabled = true;
+        if (btn.textContent === q.correctAnswer) btn.classList.add("correct");
+      });
+      if (selectedText === q.correctAnswer) {
+        cfScore++;
+        document.getElementById("cf-score").textContent = `Score: ${cfScore}`;
+      } else {
+        btnElement.classList.add("incorrect");
+      }
+      const nextBtn = document.getElementById("cf-next-btn");
+      nextBtn.textContent = cfIndex === cfQuestions.length - 1 ? "See Results" : "Next →";
+      nextBtn.classList.remove("hidden");
+    }
+
+    function nextContextFillQuestion() {
+      if (cfIndex < cfQuestions.length - 1) { cfIndex++; renderContextFillQuestion(); }
+      else {
+        document.getElementById("cf-active").classList.add("hidden");
+        document.getElementById("cf-results").classList.remove("hidden");
+        document.getElementById("cf-final-text").textContent = `You scored ${cfScore} out of ${cfQuestions.length}.`;
+      }
+    }
+
+    // --- 8. CONTEXT FILL 2 ---
+    function restartGap() {
+      if (vocabData.length === 0) return;
+      gapQueue = shuffle([...vocabData]);
+      gapTotalOriginal = gapQueue.length;
+      gapScore = 0;
+      document.getElementById("gap-results").classList.add("hidden");
+      document.getElementById("gap-active").classList.remove("hidden");
+      renderGap();
+    }
+
+    function renderGap() {
+      if (vocabData.length === 0) return;
+      if (gapQueue.length === 0) {
+        document.getElementById("gap-active").classList.add("hidden");
+        document.getElementById("gap-results").classList.remove("hidden");
+        document.getElementById("gap-final-text").textContent = `You completed ${gapScore} out of ${gapTotalOriginal} sentences.`;
+        return;
+      }
+      gapAnswered = false;
+      const rem = gapQueue.length;
+      const comp = gapTotalOriginal - rem;
+      document.getElementById("gap-counter").textContent = `Sentence ${comp + 1} of ${gapTotalOriginal}`;
+      document.getElementById("gap-score").textContent = `Score: ${gapScore}`;
+      document.getElementById("gap-stats").textContent = `Remaining: ${rem} | Mastered: ${comp}`;
+      document.getElementById("gap-prompt").textContent = gapQueue[0].gapSentence;
+
+      const input = document.getElementById("gap-input");
+      input.value = ""; input.disabled = false; input.focus();
+      const feedback = document.getElementById("gap-feedback");
+      feedback.className = "gap-feedback hidden"; feedback.textContent = "";
+
+      document.getElementById("gap-check-btn").classList.remove("hidden");
+      document.getElementById("gap-skip-btn").classList.remove("hidden");
+      document.getElementById("gap-next-btn").classList.add("hidden");
+    }
+
+    function showGapHint() {
+      if (vocabData.length === 0) return;
+      const item = gapQueue[0];
+      const feedback = document.getElementById("gap-feedback");
+      feedback.className = "gap-feedback";
+      feedback.style.background = "#f1f5f9"; feedback.style.color = "#334155";
+      feedback.textContent = `Hint (UA translation): ${item.ua}`;
+    }
+
+    function skipGapQuestion() {
+      if (gapAnswered) return;
+      gapQueue.push(gapQueue.shift());
+      renderGap();
+    }
+
+    function checkGapAnswer() {
+      if (gapAnswered) { gapQueue.shift(); renderGap(); return; }
+      if (vocabData.length === 0) return;
+      const item = gapQueue[0];
+      const input = document.getElementById("gap-input");
+      const userVal = input.value.trim().toLowerCase();
+      if (!userVal) return;
+      gapAnswered = true; input.disabled = true;
+
+      const isCorrect = userVal === item.word.toLowerCase();
+      const feedback = document.getElementById("gap-feedback");
+      feedback.style = "";
+      if (isCorrect) {
+        gapScore++;
+        document.getElementById("gap-score").textContent = `Score: ${gapScore}`;
+        feedback.className = "gap-feedback correct";
+        feedback.textContent = `Correct! (${item.word} — ${item.ua})`;
+      } else {
+        feedback.className = "gap-feedback incorrect";
+        feedback.textContent = `Incorrect. Correct answer: "${item.word}" (${item.ua})`;
+      }
+      document.getElementById("gap-check-btn").classList.add("hidden");
+      document.getElementById("gap-skip-btn").classList.add("hidden");
+      const nextBtn = document.getElementById("gap-next-btn");
+      nextBtn.textContent = gapQueue.length === 1 ? "See Results" : "Next →";
+      nextBtn.classList.remove("hidden");
+    }
+
+    function nextGap() { checkGapAnswer(); }
+  </script>
+</body>
+</html>
