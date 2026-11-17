@@ -1,0 +1,76 @@
+{
+  "title": "Environment",
+  "description": "Set 1",
+  "data": [
+    {
+      "word": "pollution",
+      "ua": "забруднення",
+      "definition": "damage caused to water, air, etc. by harmful substances or waste",
+      "example": "The company claims it is not responsible for the pollution in the river.",
+      "gapSentence": "The company claims it is not responsible for the pollution in the river."
+    },
+    {
+      "word": "habitat",
+      "ua": "середовище існування",
+      "definition": "the natural environment in which an animal or plant usually lives",
+      "example": "A lot of species are loosing their habitat because of climate change",
+      "gapSentence": "A lot of species are loosing their habitat because of climate change"
+    },
+    {
+      "word": "fossil fuels",
+      "ua": "видобувні копалини",
+      "definition": "fuels, such as gas, coal, and oil",
+      "example": "Our country is rich in different fossil fuels.",
+      "gapSentence": "Our country is rich in different fossil fuels."
+    },
+    {
+      "word": "to dump wastes",
+      "ua": "скидати відходи",
+      "definition": "to get rid of unwanted materials, garbage, or toxic substances carelessly or illegally, often in nature or water",
+      "example": "",
+      "gapSentence": ""
+    },
+    {
+      "word": "emissions",
+      "ua": "викиди, виділення",
+      "definition": "an amount of a substance that is produced and sent out into the air that is harmful to the environment, especially carbon dioxide",
+      "example": "These health risks are caused by vehicle emissions.",
+      "gapSentence": "These health risks are caused by vehicle emissions."
+    },
+    {
+      "word": "to release",
+      "ua": "виділяти",
+      "definition": "to allow a substance to flow out from somewhere",
+      "example": "These plants usually release toxic emissions.",
+      "gapSentence": "These plants usually release toxic emissions."
+    },
+    {
+      "word": "exhaust fumes",
+      "ua": "вихлопні гази",
+      "definition": "the gas produced when an engine is working",
+      "example": "All the cars release exhaust fumes.",
+      "gapSentence": "All the cars release exhaust fumes."
+    },
+    {
+      "word": "renewable energy",
+      "ua": "відновлювальна енергія",
+      "definition": "energy that is produced using the sun, wind or water",
+      "example": "We must invest more in renewable energy sources such as wind and wave power.",
+      "gapSentence": "We must invest more in renewable energy sources such as wind and wave power."
+    },
+    {
+      "word": "to contribute to",
+      "ua": "робити внесок, сприяти",
+      "definition": "to be one of the reasons why something happens",
+      "example": "Exhaust fumes and harmful emissions contribute to greenhouse effect.",
+      "gapSentence": "Exhaust fumes and harmful emissions contribute to greenhouse effect."
+    },
+    {
+      "word": "deforestation",
+      "ua": "вирубування лісів",
+      "definition": "the cutting down of trees in a large area, or the destruction of forests by people",
+      "example": "Deforestation is destroying large areas of tropical rain forest.",
+      "gapSentence": "Deforestation is destroying large areas of tropical rain forest."
+    }
+  ]
+}
