@@ -505,7 +505,7 @@
     <header>
       <div class="title-group">
         <h1 id="set-main-title">Vocabulary Practice Tool</h1>
-        <p id="set-main-desc">Select a general topic, then a set or mix</p>
+        <p id="set-main-desc">Select a topic, a set or mix, practice mode</p>
       </div>
 
       <div class="selectors-grid">
@@ -515,8 +515,7 @@
           <div class="set-selector-box">
             <select id="category-selector" onchange="onCategoryChange(this.value)">
               <option value="" disabled selected>-- Select topic --</option>
-              <option value="ecology">Environment & Nature</option>
-              <option value="tech">Technology & Society</option>
+              <option value="ecology">Environment</option>
             </select>
           </div>
         </div>
@@ -537,14 +536,14 @@
           <div class="set-selector-box">
             <select id="mode-selector" onchange="switchMode(this.value)" disabled>
               <option value="" disabled selected>-- Select set first --</option>
-              <option value="trans-cards">Translation (Cards)</option>
-              <option value="mc">Multiple Choice (Quiz)</option>
-              <option value="spelling">Spelling (Practice)</option>
-              <option value="def-cards">Definitions (Cards)</option>
-              <option value="mc2">MC 2 (Definitions Quiz)</option>
-              <option value="spelling2">Spelling 2 (Definitions Spelling)</option>
-              <option value="context-fill">Context Fill (MC Sentences)</option>
-              <option value="gap">Context Fill 2 (Typing Sentences)</option>
+              <option value="trans-cards">I.Translation (Cards)</option>
+              <option value="mc">II.Multiple Choice 1 (Quiz)</option>
+              <option value="spelling">III.Spelling 1 (Practice)</option>
+              <option value="def-cards">IV.Definitions (Cards)</option>
+              <option value="mc2">V.Multiple Choice 2 (Definitions Quiz)</option>
+              <option value="spelling2">VI.Spelling 2 (Definitions Spelling)</option>
+              <option value="context-fill">VII.Context Fill 1 (MC Sentences)</option>
+              <option value="gap">VIII.Context Fill 2 (Typing Sentences)</option>
             </select>
           </div>
         </div>
