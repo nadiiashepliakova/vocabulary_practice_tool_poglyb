@@ -210,18 +210,6 @@
       border-color: var(--primary);
     }
 
-    .pos-tag {
-      font-size: 0.78rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--primary);
-      font-weight: 700;
-      background: var(--primary-light);
-      padding: 4px 12px;
-      border-radius: 20px;
-      margin-bottom: 12px;
-    }
-
     .word-title {
       font-size: 1.7rem;
       font-weight: 800;
@@ -576,14 +564,12 @@
       <div class="flashcard-scene" onclick="flipTransCard()">
         <div id="trans-flashcard" class="flashcard">
           <div class="card-face front">
-            <span id="trans-card-pos" class="pos-tag">-</span>
             <div id="trans-front-text" class="word-title">Please select a topic and set above</div>
             <span class="flip-hint">Click to flip card</span>
           </div>
           <div class="card-face back">
-            <span id="trans-back-pos" class="pos-tag">-</span>
-            <div id="trans-back-text" class="back-main-text">-</div>
-            <div id="trans-card-ex" class="example-text">-</div>
+            <div id="trans-back-text" class="back-main-text"></div>
+            <div id="trans-card-ex" class="example-text"></div>
           </div>
         </div>
       </div>
@@ -692,14 +678,12 @@
       <div class="flashcard-scene" onclick="flipDefCard()">
         <div id="def-flashcard" class="flashcard">
           <div class="card-face front">
-            <span id="def-card-pos" class="pos-tag">-</span>
             <div id="def-front-text" class="word-title">Please select a topic and set above</div>
             <span class="flip-hint">Click to flip card</span>
           </div>
           <div class="card-face back">
-            <span id="def-back-pos" class="pos-tag">-</span>
-            <div id="def-back-text" class="back-main-text long-text">-</div>
-            <div id="def-card-ex" class="example-text">-</div>
+            <div id="def-back-text" class="back-main-text long-text"></div>
+            <div id="def-card-ex" class="example-text"></div>
           </div>
         </div>
       </div>
@@ -868,7 +852,6 @@
   </div>
 
   <script>
-    // Каталог із вкладеними папками у директорії sets/
     const categoriesCatalog = {
       ecology: {
         name: "Environment & Nature",
@@ -1115,12 +1098,10 @@
         sceneEl.innerHTML = `
           <div id="trans-flashcard" class="flashcard">
             <div class="card-face front">
-              <span id="trans-card-pos" class="pos-tag"></span>
               <div id="trans-front-text" class="word-title"></div>
               <span class="flip-hint">Click to flip card</span>
             </div>
             <div class="card-face back">
-              <span id="trans-back-pos" class="pos-tag"></span>
               <div id="trans-back-text" class="back-main-text"></div>
               <div id="trans-card-ex" class="example-text"></div>
             </div>
@@ -1137,8 +1118,6 @@
       document.getElementById("trans-flashcard").classList.remove("is-flipped");
 
       setTimeout(() => {
-        document.getElementById("trans-card-pos").textContent = item.pos;
-        document.getElementById("trans-back-pos").textContent = item.pos;
         document.getElementById("trans-card-ex").textContent = `"${item.example}"`;
 
         const frontEl = document.getElementById("trans-front-text");
@@ -1384,8 +1363,8 @@
       if (!document.getElementById("def-flashcard")) {
         sceneEl.innerHTML = `
           <div id="def-flashcard" class="flashcard">
-            <div class="card-face front"><span id="def-card-pos" class="pos-tag"></span><div id="def-front-text" class="word-title"></div><span class="flip-hint">Click to flip card</span></div>
-            <div class="card-face back"><span id="def-back-pos" class="pos-tag"></span><div id="def-back-text" class="back-main-text long-text"></div><div id="def-card-ex" class="example-text"></div></div>
+            <div class="card-face front"><div id="def-front-text" class="word-title"></div><span class="flip-hint">Click to flip card</span></div>
+            <div class="card-face back"><div id="def-back-text" class="back-main-text long-text"></div><div id="def-card-ex" class="example-text"></div></div>
           </div>
         `;
         controlsEl.classList.remove("hidden");
@@ -1398,8 +1377,6 @@
       document.getElementById("def-flashcard").classList.remove("is-flipped");
 
       setTimeout(() => {
-        document.getElementById("def-card-pos").textContent = item.pos;
-        document.getElementById("def-back-pos").textContent = item.pos;
         document.getElementById("def-card-ex").textContent = `"${item.example}"`;
         const frontEl = document.getElementById("def-front-text");
         const backEl = document.getElementById("def-back-text");
@@ -1446,7 +1423,7 @@
       return shuffle(vocabData).map((item) => {
         if (mc2Dir === "word-def") {
           const distractors = shuffle(vocabData.filter((v) => v.word !== item.word)).slice(0, 3).map((d) => d.definition);
-          return { prompt: `${item.word} (${item.pos})`, correctAnswer: item.definition, options: shuffle([item.definition, ...distractors]) };
+          return { prompt: item.word, correctAnswer: item.definition, options: shuffle([item.definition, ...distractors]) };
         } else {
           const distractors = shuffle(vocabData.filter((v) => v.word !== item.word)).slice(0, 3).map((d) => d.word);
           return { prompt: item.definition, correctAnswer: item.word, options: shuffle([item.word, ...distractors]) };
